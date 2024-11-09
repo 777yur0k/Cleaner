@@ -1,0 +1,26 @@
+name: "Deploy Cleaner"
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  deploy:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - run: dotnet publish /p:PublishSingleFile=true /p:PublishReadyToRun=true --self-contained false
+          
+      - uses: svenstaro/upload-release-action@v2
+        with:
+         repo_token: ${{ secrets.GITHUB_TOKEN }}
+         file: bin\Release\net8.0-windows\win-x64\publish\Cleaner.exe
+         asset_name: Cleaner.exe
+         tag: ${{ github.ref }}
+         body: "Required .NET 8 and Win x64"
